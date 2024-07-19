@@ -1,0 +1,183 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workplace Stress Cost Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .widget-container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .cost-breakdown {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .cost-item {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+            position: relative;
+        }
+        .cost-value {
+            float: right;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .animate-value {
+            transition: all 0.5s;
+        }
+        .tooltip {
+            visibility: hidden;
+            width: 200px;
+            background-color: #34495e;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .cost-item:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .source {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <h1>Workplace Stress Cost Calculator</h1>
+        <div class="input-group">
+            <label for="employees">Number of Employees:</label>
+            <input type="number" id="employees" min="1" value="100">
+        </div>
+        <div class="input-group">
+            <label for="salary">Average Annual Salary ($):</label>
+            <input type="number" id="salary" min="0" value="50000">
+        </div>
+        <button onclick="calculateCost()">Calculate Cost</button>
+        <div class="result" id="totalCost"></div>
+        <div class="cost-breakdown" id="costBreakdown"></div>
+        <div class="source">Source: American Institute of Stress</div>
+    </div>
+
+    <script>
+        function calculateCost() {
+            const employees = document.getElementById('employees').value;
+            const salary = document.getElementById('salary').value;
+            
+            const healthcareCost = employees * salary * 0.5 * 0.05;
+            const absenteeismCost = employees * (salary / 260) * 10;
+            const turnoverCost = employees * salary * 0.4 * 1.6;
+            const totalCost = healthcareCost + absenteeismCost + turnoverCost;
+            
+            animateValue('totalCost', 0, totalCost, 1000, (value) => `Total Annual Cost: $${numberWithCommas(value.toFixed(2))}`);
+            
+            const breakdown = document.getElementById('costBreakdown');
+            breakdown.innerHTML = `
+                <div class="cost-item">
+                    Healthcare Costs 
+                    <span class="cost-value animate-value" id="healthcareCost">$0</span>
+                    <span class="tooltip">Stress-related healthcare costs are estimated at 5% of total healthcare expenses, which average 50% of salary.</span>
+                </div>
+                <div class="cost-item">
+                    Absenteeism Costs 
+                    <span class="cost-value animate-value" id="absenteeismCost">$0</span>
+                    <span class="tooltip">On average, employees take 10 stress-related sick days per year, costing companies in lost productivity.</span>
+                </div>
+                <div class="cost-item">
+                    Turnover Costs 
+                    <span class="cost-value animate-value" id="turnoverCost">$0</span>
+                    <span class="tooltip">Stress-related turnover affects about 40% of employees, with replacement costs estimated at 1.6 times the annual salary.</span>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                animateValue('healthcareCost', 0, healthcareCost, 800, (value) => `$${numberWithCommas(value.toFixed(2))}`);
+                animateValue('absenteeismCost', 0, absenteeismCost, 800, (value) => `$${numberWithCommas(value.toFixed(2))}`);
+                animateValue('turnoverCost', 0, turnoverCost, 800, (value) => `$${numberWithCommas(value.toFixed(2))}`);
+            }, 200);
+        }
+
+        function animateValue(id, start, end, duration, formatter) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = progress * (end - start) + start;
+                document.getElementById(id).textContent = formatter(value);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    </script>
+</body>
+</html>
